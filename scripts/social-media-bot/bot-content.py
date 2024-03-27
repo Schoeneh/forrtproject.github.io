@@ -24,26 +24,45 @@ df.fillna("", inplace=True)
 
 # Generating the post
 for i in range(1):
+
+    str_title = df["title"][i]
+
+    str_type = df["type"][i]
+    str_type = ",".join(str_type.split(","))
+
+
+    str_userTags = df["user tags"][i]
+    str_language = df["language"][i]
+    str_educationLevel = df["education level"][i]
+    str_subjectAreas = df["subject areas"][i]
+    str_url = df["url"][i]
+    str_clusters = df["clusters"][i]
+
+    char_count = {
+        "static text": 151,
+        "title": len(df["title"][i]),
+        "type": len(df["type"][i]),
+        "user tags": len(df["user tags"][i]),
+        "language": len(df["language"][i]),
+        "education level": len(df["education level"][i]),
+        "subject areas": len(df["subject areas"][i]),
+        "url": 23, #See https://github.com/mastodon/mastodon/pull/4427
+        "clusters": len(df["clusters"][i])}
+
     parts = [
-        "Suggestion No. "+ str(i)+": "+df["title"][i],
-        "The "+df["type"][i]+" will teach you about "+df["user tags"][i]+" and is available in "+df["language"][i]+".",
-        "It's aimed at the "+df["education level"][i]+" level in the field of "+df["subject areas"][i]+".",
-        "You can find it here "+df["url"][i],
-        df["clusters"][i]+" #OpenScience #OER"
+        "Suggestion No. "+ str(i)+": "+str_title,
+        "This "+str_type+" will teach you about "+str_userTags+" and is available in "+str_language+".",
+        "It's aimed at the "+str_educationLevel+" level in the field of "+str_subjectAreas+".",
+        "You can find it here: "+str_url,
+        str_clusters+" #OpenScience #OER"
     ]
 
 post = "\n".join(parts)
 print(post)
 print("---")
-print(len(post))
+print(sum(char_count.values()))
+print(char_count)
 
-'''
-Suggestion No. [running index]: [title]. 
-The [type] will teach you about [user tags] and is available in [language]. 
-It’s aimed at the [education level] level in the field of [subject areas]. 
-You can find it here [url].
-[Add clusters as hashtags] + #OpenScience #OER 
-'''
 
 '''
 char_count_avg = {}
@@ -55,7 +74,6 @@ educationLevel_len = []
 subjectAreas_len = []
 url_len = [23] #See https://github.com/mastodon/mastodon/pull/4427
 clusters_len = []
-
 
 for i in range(len(df)):
     title_len.append(len(df["title"][i]))
