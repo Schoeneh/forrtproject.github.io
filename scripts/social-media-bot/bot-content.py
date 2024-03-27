@@ -64,7 +64,6 @@ print(sum(char_count.values()))
 print(char_count)
 
 
-'''
 char_count_avg = {}
 title_len = []
 type_len = []
@@ -84,13 +83,19 @@ for i in range(len(df)):
     subjectAreas_len.append(len(df["subject areas"][i]))
     clusters_len.append(len(df["clusters"][i]))
 
-title_avg = sum(title_len) / len(title_len)
-type_avg = sum(type_len) / len(type_len)
-userTags_avg = sum(userTags_len) / len(userTags_len)
-language_avg = sum(language_len) / len(language_len)
-educationLevel_avg = sum(educationLevel_len) / len(educationLevel_len)
-subjectAreas_avg = sum(subjectAreas_len) / len(subjectAreas_len)
-clusters_avg = sum(clusters_len) / len(clusters_len)
+char_count_avg = {
+    "static text": 151,
+    "title": sum(title_len) / len(title_len),
+    "type": sum(type_len) / len(type_len),
+    "userTags": sum(userTags_len) / len(userTags_len),
+    "language": sum(language_len) / len(language_len),
+    "educationLevel": sum(educationLevel_len) / len(educationLevel_len),
+    "subjectAreas": sum(subjectAreas_len) / len(subjectAreas_len),
+    "url": 23,
+    "clusters": sum(clusters_len) / len(clusters_len)
+}
 
-print(title_avg + type_avg + userTags_avg + language_avg + educationLevel_avg + subjectAreas_avg + 23 + clusters_avg)
-'''
+print("---")
+print("---")
+print(sum(char_count_avg.values()))
+print(char_count_avg)
