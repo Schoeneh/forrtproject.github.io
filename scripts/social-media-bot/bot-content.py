@@ -1,0 +1,78 @@
+import pandas as pd
+
+# Getting the whole database as a DataFrame-object
+data = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRgYcUP3ybhe4x05Xp4-GTf-Cn2snBCW8WOP_N7X-9r80AeCpFAGTfWn6ITtBk-haBkDqXAYXh9a_x4/pub?gid=1924034107&single=true&output=csv"
+df = pd.read_csv(data)
+
+# Keeping only the columns needed for the post
+columns = [col for col in df.columns]
+columns_needed = ["title", "type", "user tags", "language", "education level", "subject areas", "url", "clusters"]
+columns_to_keep = []
+
+## Future-proofing: names and ordering might change; casefold() for case-insensitive matching of substring in string
+for element in columns_needed:
+    for col in columns:
+        if element.casefold() in col.casefold():
+            columns_to_keep.append(col)
+
+df = df[columns_to_keep]
+## Renaming the columns to the ones defined above (columns_needed)
+df.columns = columns_needed
+
+## Replacing all NaN (float) with an empty string
+df.fillna("", inplace=True)
+
+# Generating the post
+for i in range(1):
+    parts = [
+        "Suggestion No. "+ str(i)+": "+df["title"][i],
+        "The "+df["type"][i]+" will teach you about "+df["user tags"][i]+" and is available in "+df["language"][i]+".",
+        "It's aimed at the "+df["education level"][i]+" level in the field of "+df["subject areas"][i]+".",
+        "You can find it here "+df["url"][i],
+        df["clusters"][i]+" #OpenScience #OER"
+    ]
+
+post = "\n".join(parts)
+print(post)
+print("---")
+print(len(post))
+
+'''
+Suggestion No. [running index]: [title]. 
+The [type] will teach you about [user tags] and is available in [language]. 
+It’s aimed at the [education level] level in the field of [subject areas]. 
+You can find it here [url].
+[Add clusters as hashtags] + #OpenScience #OER 
+'''
+
+'''
+char_count_avg = {}
+title_len = []
+type_len = []
+userTags_len = []
+language_len = []
+educationLevel_len = []
+subjectAreas_len = []
+url_len = [23] #See https://github.com/mastodon/mastodon/pull/4427
+clusters_len = []
+
+
+for i in range(len(df)):
+    title_len.append(len(df["title"][i]))
+    type_len.append(len(df["type"][i]))
+    userTags_len.append(len(df["user tags"][i]))
+    language_len.append(len(df["language"][i]))
+    educationLevel_len.append(len(df["education level"][i]))
+    subjectAreas_len.append(len(df["subject areas"][i]))
+    clusters_len.append(len(df["clusters"][i]))
+
+title_avg = sum(title_len) / len(title_len)
+type_avg = sum(type_len) / len(type_len)
+userTags_avg = sum(userTags_len) / len(userTags_len)
+language_avg = sum(language_len) / len(language_len)
+educationLevel_avg = sum(educationLevel_len) / len(educationLevel_len)
+subjectAreas_avg = sum(subjectAreas_len) / len(subjectAreas_len)
+clusters_avg = sum(clusters_len) / len(clusters_len)
+
+print(title_avg + type_avg + userTags_avg + language_avg + educationLevel_avg + subjectAreas_avg + 23 + clusters_avg)
+'''
