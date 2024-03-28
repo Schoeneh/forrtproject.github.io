@@ -10,7 +10,9 @@ on:
 jobs:
   run-python-script:
     runs-on: ubuntu-latest
-
+    env: 
+      USER_CRED: ${{ secrets.MASTODONPY_USERCRED }}
+      
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
