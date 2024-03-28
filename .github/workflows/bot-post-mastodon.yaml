@@ -27,8 +27,8 @@ jobs:
       id: script_output
       run: |
         MULTI_LINES_TEXT="this is line one \n
-                this is line two \n
-                this is line three \n"
+                          this is line two \n
+                          this is line three \n"
         echo "MULTI_LINES_TEXT_ENV_VAR<<EOF" >> $GITHUB_ENV
         echo $MULTI_LINES_TEXT >> $GITHUB_ENV
         echo "EOF" >> $GITHUB_ENV
