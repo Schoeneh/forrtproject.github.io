@@ -1,4 +1,9 @@
+import os
 import pandas as pd
+from mastodon import Mastodon
+
+mastodon = Mastodon(access_token = os.environ["USER_CRED"])
+
 
 def pretty_types(in_lst):
     #print(in_lst)
@@ -142,17 +147,17 @@ for i in range(1):
         "clusters": len(pretty_clusters(lst_clusters))}
 
     parts = [
-        "cat << EOF",
         "#FOERRT: " + str_title,
         "This " + pretty_types(lst_type) + " has been tagged with " + pretty_tags(lst_tags) + " and is available in " + pretty_plurals(lst_language) + ".",
         "It's aimed at the " + pretty_levels(lst_educationLevel) + " level in " + pretty_plurals(lst_subjectAreas) + ".",
         "You can find it here: " + str_url,
-        pretty_clusters(lst_clusters) + " #OpenScience #OER",
-        "EOF"
+        pretty_clusters(lst_clusters) + " #OpenScience #OER"
     ]
 
     post = '\n'.join(parts)
     print(post)
+
+    mastodon.status_post(post, spoiler_text="Testing, github-action")
     #print(post, file=sys.stdout)
     #print(sum(char_count.values()))
     #print(char_count)
