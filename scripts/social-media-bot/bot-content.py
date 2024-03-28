@@ -4,66 +4,143 @@ import pandas as pd
 data = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRgYcUP3ybhe4x05Xp4-GTf-Cn2snBCW8WOP_N7X-9r80AeCpFAGTfWn6ITtBk-haBkDqXAYXh9a_x4/pub?gid=1924034107&single=true&output=csv"
 df = pd.read_csv(data)
 
-# Keeping only the columns needed for the post
-columns = [col for col in df.columns]
-columns_needed = ["title", "type", "user tags", "language", "education level", "subject areas", "url", "clusters"]
-columns_to_keep = []
 
-## Future-proofing: names and ordering might change; casefold() for case-insensitive matching of substring in string
-for element in columns_needed:
-    for col in columns:
-        if element.casefold() in col.casefold():
-            columns_to_keep.append(col)
+#Standardize column names; code reused from content/resources/resource.py
+df.columns = df.columns.str.lower()
+df.rename(columns = {df.columns[df.columns.str.contains(pat = 'title')][0]: "title",
+                        df.columns[df.columns.str.contains(pat = 'material type')][0]: 'material_type',
+                        df.columns[df.columns.str.contains(pat = 'user tags')][0]: 'tags',
+                        df.columns[df.columns.str.contains(pat = 'lang')][0]: 'language',
+                        df.columns[df.columns.str.contains(pat = 'education level')][0]: 'education_level',
+                        df.columns[df.columns.str.contains(pat = 'subject areas')][0]: 'subject_areas',
+                        df.columns[df.columns.str.contains(pat = 'url')][0]: 'link_to_resource',                           
+                        df.columns[df.columns.str.contains(pat = 'clusters')][0]: 'FORRT_clusters'},
+            inplace = True)
+df.fillna('', inplace=True)    
 
-df = df[columns_to_keep]
-## Renaming the columns to the ones defined above (columns_needed)
-df.columns = columns_needed
+#Splitting cells; code reused from content/resources/resource.py
+df['material_type'] = [[y.strip() for y in x.split(',')] for x in df['material_type'].values]
+df['education_level'] = [[y.strip() for y in x.split(',')] for x in df['education_level'].values]
+df['subject_areas'] = [[y.strip() for y in x.split(',')] for x in df['subject_areas'].values]
+df['FORRT_clusters'] = [[y.strip() for y in x.split(',')] for x in df['FORRT_clusters'].values]
+df['tags'] = [[y.strip() for y in x.split(',')] for x in df['tags'].values]
+df['language'] = [[y.strip() for y in x.split(',')] for x in df['language'].values]
 
-## Replacing all NaN (float) with an empty string
-df.fillna("", inplace=True)
+
+def pretty_type(in_lst):
+    #print(in_lst)
+    remove = ["Reading", "Primary Source"]
+    in_lst = [i for i in in_lst if i not in remove]
+
+    if len(in_lst) == 0:
+        out_str = "Resource"
+    elif len(in_lst) == 1:
+        out_str = in_lst[0]
+    elif len(in_lst) > 1:
+        out_str = "/".join(in_lst)
+    else:
+        out_str = "$NULL"
+    
+    return(out_str)
+
+def pretty_tags(in_lst):
+    #print(in_lst)
+    remove = ["Open Science"]
+    in_lst = [i for i in in_lst if i not in remove]
+
+    if len(in_lst) == 0:
+        out_str = "$NULL"
+    elif len(in_lst) == 1:
+        out_str = "\'"+in_lst[0]+"\'"
+    elif len(in_lst) > 1:
+        out_str = ""
+        for x in range(len(in_lst)-1):
+            out_str = out_str + "\'" + in_lst[x] + "\', "
+        out_str = out_str + "and \'" + in_lst[len(in_lst)-1] + "\'"
+    
+    return(out_str)
+
+def pretty_clusters(in_lst):
+
+    for i in range(len(in_lst)):
+        if in_lst[i] == "Open Data and Materials":
+            in_lst[i] = "Open Data"
+
+    out_str = ""
+    for x in range(len(in_lst)-1):
+        out_str = out_str + "#" + in_lst[x].replace(" ", "") + " "
+    out_str = out_str + "#" + in_lst[len(in_lst)-1].replace(" ", "")
+
+    return(out_str)
+
+def pretty_plurals(in_lst):
+    #print(in_lst)
+    remove = ["Open Science"]
+    in_lst = [i for i in in_lst if i not in remove]
+    if len(in_lst) == 1:
+        out_str = in_lst[0]
+    elif len(in_lst) > 1:
+        out_str = ""
+        for x in range(len(in_lst)-1):
+            out_str = out_str + in_lst[x] + ", "
+        out_str = out_str + "and " + in_lst[len(in_lst)-1]
+    else:
+        out_str = "$NULL"
+    
+    return(out_str)
+
 
 # Generating the post
-for i in range(1):
+for i in range(10):
 
     str_title = df["title"][i]
+    lst_type = df["material_type"][i]
+    lst_tags = df["tags"][i]
+    lst_language = df["language"][i]
+    lst_educationLevel = df["education_level"][i]
+    lst_subjectAreas = df["subject_areas"][i]
+    str_url = df["link_to_resource"][i]
+    lst_clusters = df["FORRT_clusters"][i]
 
-    str_type = df["type"][i]
-    str_type = ",".join(str_type.split(","))
-
-
-    str_userTags = df["user tags"][i]
-    str_language = df["language"][i]
-    str_educationLevel = df["education level"][i]
-    str_subjectAreas = df["subject areas"][i]
-    str_url = df["url"][i]
-    str_clusters = df["clusters"][i]
-
+    '''
     char_count = {
         "static text": 151,
-        "title": len(df["title"][i]),
-        "type": len(df["type"][i]),
-        "user tags": len(df["user tags"][i]),
-        "language": len(df["language"][i]),
-        "education level": len(df["education level"][i]),
-        "subject areas": len(df["subject areas"][i]),
+        "title": len(str_title),
+        "type": len(str_type),
+        "user tags": len(str_tags),
+        "language": len(str_language),
+        "education level": len(str_educationLevel),
+        "subject areas": len(str_subjectAreas),
         "url": 23, #See https://github.com/mastodon/mastodon/pull/4427
-        "clusters": len(df["clusters"][i])}
+        "clusters": len(str_clusters)}
+    '''
 
     parts = [
-        "Suggestion No. "+ str(i)+": "+str_title,
-        "This "+str_type+" will teach you about "+str_userTags+" and is available in "+str_language+".",
+        "#FOERRT: " + str_title,
+        "This " + pretty_type(lst_type) + " has been tagged with " + pretty_tags(lst_tags) + " and is available in " + pretty_plurals(lst_language) + ".",
+        "It's aimed at the " + pretty_plurals(lst_educationLevel) + " level in " + pretty_plurals(lst_subjectAreas) + ".",
+        "You can find it here: " + str_url,
+        pretty_clusters(lst_clusters) + " #OpenScience #OER"
+    ]
+
+    post = "\n".join(parts)
+    print(post)
+    print("---")
+    '''
+    parts = [
+        "#FOERRT: "+str_title,
+        "This "+str_type+" will teach you about "+str_tags+" and is available in "+str_language+".",
         "It's aimed at the "+str_educationLevel+" level in the field of "+str_subjectAreas+".",
         "You can find it here: "+str_url,
         str_clusters+" #OpenScience #OER"
     ]
-
-post = "\n".join(parts)
-print(post)
-print("---")
-print(sum(char_count.values()))
-print(char_count)
+    '''
+#print("---")
+#print(sum(char_count.values()))
+#print(char_count)
 
 
+'''
 char_count_avg = {}
 title_len = []
 type_len = []
@@ -99,3 +176,4 @@ print("---")
 print("---")
 print(sum(char_count_avg.values()))
 print(char_count_avg)
+'''
