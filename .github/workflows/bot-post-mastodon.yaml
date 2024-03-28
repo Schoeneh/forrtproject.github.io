@@ -41,4 +41,4 @@ jobs:
       with:
           access-token: ${{ secrets.MASTODON_ACCESS_TOKEN }} # access token
           url: ${{ secrets.MASTODON_URL }} # https://example.social
-          message: ${{ env.OUTPUT_ENV_VAR }}
+          message: ${{ env.MULTI_LINES_TEXT_ENV_VAR }}
