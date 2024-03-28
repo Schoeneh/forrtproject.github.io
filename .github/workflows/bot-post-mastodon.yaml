@@ -27,7 +27,9 @@ jobs:
       id: script_output
       run: |
         output=$(python scripts/social-media-bot/bot-content.py) # replace with your script
-        echo "output=$output" >> $GITHUB_ENV
+        echo "output<<EOF" >> $GITHUB_ENV
+        echo "output" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
     - name: Send toot to Mastodon
       id: mastodon
       uses: cbrgm/mastodon-github-action@v2
