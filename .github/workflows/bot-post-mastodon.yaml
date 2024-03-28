@@ -28,6 +28,10 @@ jobs:
       run: |
         output=$(python scripts/social-media-bot/bot-content.py) # replace with your script
         echo "output=$output" >> $GITHUB_ENV
-    - name: Use output
-      run: |
-        echo "The output of the script was: ${{ env.output }}"
+    - name: Send toot to Mastodon
+      id: mastodon
+      uses: cbrgm/mastodon-github-action@v2
+      with:
+          access-token: ${{ secrets.MASTODON_ACCESS_TOKEN }} # access token
+          url: ${{ secrets.MASTODON_URL }} # https://example.social
+          message: ${{ env.output }}
