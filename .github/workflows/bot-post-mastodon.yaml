@@ -26,8 +26,5 @@ jobs:
         echo "OUTPUT=$(python3 scripts/social-media-bot/bot-content.py)" >> $GITHUB_ENV
     - name: Send toot to Mastodon
       id: mastodon
-      uses: cbrgm/mastodon-github-action@v2
-      with:
-          access-token: ${{ secrets.MASTODON_ACCESS_TOKEN }} # access token
-          url: ${{ secrets.MASTODON_URL }} # https://example.social
-          message: ${{ env.OUTPUT }}
+      run: |
+          echo ${{ env.OUTPUT }}
