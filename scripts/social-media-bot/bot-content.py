@@ -27,7 +27,7 @@ df['tags'] = [[y.strip() for y in x.split(',')] for x in df['tags'].values]
 df['language'] = [[y.strip() for y in x.split(',')] for x in df['language'].values]
 
 
-def pretty_type(in_lst):
+def pretty_types(in_lst):
     #print(in_lst)
     remove = ["Reading", "Primary Source"]
     in_lst = [i for i in in_lst if i not in remove]
@@ -61,22 +61,41 @@ def pretty_tags(in_lst):
     return(out_str)
 
 def pretty_clusters(in_lst):
-
     for i in range(len(in_lst)):
         if in_lst[i] == "Open Data and Materials":
             in_lst[i] = "Open Data"
 
-    out_str = ""
-    for x in range(len(in_lst)-1):
-        out_str = out_str + "#" + in_lst[x].replace(" ", "") + " "
-    out_str = out_str + "#" + in_lst[len(in_lst)-1].replace(" ", "")
+    if len(in_lst) == 0:
+        out_str = "$NULL"
+    else:
+        out_str = ""
+        for x in range(len(in_lst)-1):
+            out_str = out_str + "#" + in_lst[x].replace(" ", "") + " "
+        out_str = out_str + "#" + in_lst[len(in_lst)-1].replace(" ", "")
 
+    return(out_str)
+
+def pretty_levels(in_lst):
+    for i in range(len(in_lst)):
+        if in_lst[i].casefold().contains("undergrad"):
+            in_lst[i] = "Undergraduate"
+        if in_lst[i].casefold().contains == "College / Upper Division (Undergraduates)":
+            in_lst[i] = "Undergraduate"
+    
+    if len(in_lst) == 1:
+        out_str = in_lst[0]
+    elif len(in_lst) > 1:
+        out_str = ""
+        for x in range(len(in_lst)-1):
+            out_str = out_str + in_lst[x] + ", "
+        out_str = out_str + "and " + in_lst[len(in_lst)-1]
+    else:
+        out_str = "$NULL"
+    
     return(out_str)
 
 def pretty_plurals(in_lst):
     #print(in_lst)
-    remove = ["Open Science"]
-    in_lst = [i for i in in_lst if i not in remove]
     if len(in_lst) == 1:
         out_str = in_lst[0]
     elif len(in_lst) > 1:
@@ -102,43 +121,31 @@ for i in range(10):
     str_url = df["link_to_resource"][i]
     lst_clusters = df["FORRT_clusters"][i]
 
-    '''
+    
     char_count = {
-        "static text": 151,
+        "static text": 126,
         "title": len(str_title),
-        "type": len(str_type),
-        "user tags": len(str_tags),
-        "language": len(str_language),
-        "education level": len(str_educationLevel),
-        "subject areas": len(str_subjectAreas),
+        "type": len(pretty_types(lst_type)),
+        "user tags": len(pretty_tags(lst_tags)),
+        "language": len(pretty_plurals(lst_language)),
+        "education level": len(pretty_plurals(lst_educationLevel)),
+        "subject areas": len(pretty_plurals(lst_subjectAreas)),
         "url": 23, #See https://github.com/mastodon/mastodon/pull/4427
-        "clusters": len(str_clusters)}
-    '''
+        "clusters": len(pretty_clusters(lst_clusters))}
 
     parts = [
         "#FOERRT: " + str_title,
-        "This " + pretty_type(lst_type) + " has been tagged with " + pretty_tags(lst_tags) + " and is available in " + pretty_plurals(lst_language) + ".",
-        "It's aimed at the " + pretty_plurals(lst_educationLevel) + " level in " + pretty_plurals(lst_subjectAreas) + ".",
+        "This " + pretty_types(lst_type) + " has been tagged with " + pretty_tags(lst_tags) + " and is available in " + pretty_plurals(lst_language) + ".",
+        "It's aimed at the " + pretty_levels(lst_educationLevel) + " level in " + pretty_plurals(lst_subjectAreas) + ".",
         "You can find it here: " + str_url,
         pretty_clusters(lst_clusters) + " #OpenScience #OER"
     ]
 
     post = "\n".join(parts)
     print(post)
+    print(sum(char_count.values()))
+    print(char_count)
     print("---")
-    '''
-    parts = [
-        "#FOERRT: "+str_title,
-        "This "+str_type+" will teach you about "+str_tags+" and is available in "+str_language+".",
-        "It's aimed at the "+str_educationLevel+" level in the field of "+str_subjectAreas+".",
-        "You can find it here: "+str_url,
-        str_clusters+" #OpenScience #OER"
-    ]
-    '''
-#print("---")
-#print(sum(char_count.values()))
-#print(char_count)
-
 
 '''
 char_count_avg = {}
