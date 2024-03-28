@@ -30,4 +30,4 @@ jobs:
         echo "output=$output" >> $GITHUB_ENV
     - name: Use output
       run: |
-        echo "The output of the script was: ${{ steps.script_output.outputs.output }}"
+        echo "The output of the script was: ${{ env.output }}"
