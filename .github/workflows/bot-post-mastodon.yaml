@@ -27,6 +27,7 @@ jobs:
       id: script_output
       run: |
         output=$(python scripts/social-media-bot/bot-content.py) # replace with your script
+        output="${output//$'\n'/'%0A'}"
         echo "output=$output" >> $GITHUB_ENV
     - name: Send toot to Mastodon
       id: mastodon
