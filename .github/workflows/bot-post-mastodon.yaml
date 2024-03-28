@@ -19,15 +19,15 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: '3.x'
-
-    - name: Run Python script
-      id: run-script
+    - name: Install Dependencies
       run: |
-        echo "OUTPUT=$(python3 scripts/social-media-bot/bot-content.py)" >> $GITHUB_ENV
-    - name: Send toot to Mastodon
-      id: mastodon
-      uses: cbrgm/mastodon-github-action@v2
-      with:
-          access-token: ${{ secrets.MASTODON_ACCESS_TOKEN }} # access token
-          url: ${{ secrets.MASTODON_URL }} # https://example.social
-          message: ${{ env.OUTPUT }}
+        python3 -m pip install --upgrade pip
+        pip install pandas
+    - name: Run script and save output
+      id: script_output
+      run: |
+        output=$(python scripts/social-media-bot/bot-content.py) # replace with your script
+        echo "output=$output" >> $GITHUB_ENV
+    - name: Use output
+      run: |
+        echo "The output of the script was: ${{ steps.script_output.outputs.output }}"
