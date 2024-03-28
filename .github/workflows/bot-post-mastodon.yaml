@@ -23,6 +23,7 @@ jobs:
       run: |
         python3 -m pip install --upgrade pip
         pip install pandas
+        pip install Mastodon.py
     - name: Run script and save output
       id: script_output
       run: |
