@@ -142,14 +142,16 @@ for i in range(1):
         "clusters": len(pretty_clusters(lst_clusters))}
 
     parts = [
+        "cat << EOF",
         "#FOERRT: " + str_title,
         "This " + pretty_types(lst_type) + " has been tagged with " + pretty_tags(lst_tags) + " and is available in " + pretty_plurals(lst_language) + ".",
         "It's aimed at the " + pretty_levels(lst_educationLevel) + " level in " + pretty_plurals(lst_subjectAreas) + ".",
         "You can find it here: " + str_url,
-        pretty_clusters(lst_clusters) + " #OpenScience #OER"
+        pretty_clusters(lst_clusters) + " #OpenScience #OER",
+        "EOF"
     ]
 
-    post = ' || '.join(parts)
+    post = '\n'.join(parts)
     print(post)
     #print(post, file=sys.stdout)
     #print(sum(char_count.values()))
