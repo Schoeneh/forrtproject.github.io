@@ -79,7 +79,7 @@ def pretty_levels(in_lst):
     for i in range(len(in_lst)):
         if in_lst[i].casefold().contains("undergrad"):
             in_lst[i] = "Undergraduate"
-        if in_lst[i].casefold().contains == "College / Upper Division (Undergraduates)":
+        if in_lst[i].casefold().contains(undergraduates):
             in_lst[i] = "Undergraduate"
     
     if len(in_lst) == 1:
@@ -110,7 +110,7 @@ def pretty_plurals(in_lst):
 
 
 # Generating the post
-for i in range(10):
+for i in range(1):
 
     str_title = df["title"][i]
     lst_type = df["material_type"][i]
@@ -136,16 +136,16 @@ for i in range(10):
     parts = [
         "#FOERRT: " + str_title,
         "This " + pretty_types(lst_type) + " has been tagged with " + pretty_tags(lst_tags) + " and is available in " + pretty_plurals(lst_language) + ".",
-        "It's aimed at the " + pretty_levels(lst_educationLevel) + " level in " + pretty_plurals(lst_subjectAreas) + ".",
+        "It's aimed at the " + pretty_plurals(lst_educationLevel) + " level in " + pretty_plurals(lst_subjectAreas) + ".",
         "You can find it here: " + str_url,
         pretty_clusters(lst_clusters) + " #OpenScience #OER"
     ]
 
     post = "\n".join(parts)
     print(post)
-    print(sum(char_count.values()))
-    print(char_count)
-    print("---")
+    #print(sum(char_count.values()))
+    #print(char_count)
+    #print("---")
 
 '''
 char_count_avg = {}
