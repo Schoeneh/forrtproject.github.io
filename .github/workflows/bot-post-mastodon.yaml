@@ -27,7 +27,7 @@ jobs:
       id: script_output
       run: |
         output=$(python scripts/social-media-bot/bot-content.py) # replace with your script
-        echo "::set-output name=output::$output"
+        echo "output=$output" >> $GITHUB_ENV
     - name: Use output
       run: |
         echo "The output of the script was: ${{ steps.script_output.outputs.output }}"
