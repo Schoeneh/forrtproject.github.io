@@ -142,7 +142,7 @@ for i in range(1):
     ]
 
     post = "\n".join(parts)
-    print(post)
+    return(post)
     #print(sum(char_count.values()))
     #print(char_count)
     #print("---")
