@@ -149,7 +149,7 @@ for i in range(1):
         pretty_clusters(lst_clusters) + " #OpenScience #OER"
     ]
 
-    post = "%0A".join(parts)
+    post = '\n'.join(parts)
     print(post)
     #print(post, file=sys.stdout)
     #print(sum(char_count.values()))
