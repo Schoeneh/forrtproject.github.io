@@ -2,7 +2,7 @@ import os
 import pandas as pd
 from mastodon import Mastodon
 
-mastodon = Mastodon(access_token = os.environ["USER_CRED"])
+#mastodon = Mastodon(access_token = os.environ["USER_CRED"])
 
 
 def pretty_types(in_lst):
@@ -157,7 +157,8 @@ for i in range(1):
     post = '\n'.join(parts)
     print(post)
 
-    mastodon.status_post(post, spoiler_text="Testing, github-action")
+    print(os.environ["TEST"])
+    #mastodon.status_post(post, spoiler_text="Testing, github-action")
     #print(post, file=sys.stdout)
     #print(sum(char_count.values()))
     #print(char_count)
