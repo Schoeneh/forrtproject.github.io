@@ -51,12 +51,12 @@ def pretty_tags(in_lst):
     if len(in_lst) == 0:
         out_str = "$NULL"
     elif len(in_lst) == 1:
-        out_str = '\''+in_lst[0]+'\''
+        out_str = '$'+in_lst[0]+'$'
     elif len(in_lst) > 1:
         out_str = ""
         for x in range(len(in_lst)-1):
-            out_str = out_str + '\'' + in_lst[x] + '\', '
-        out_str = out_str + 'and \'' + in_lst[len(in_lst)-1] + '\''
+            out_str = out_str + '$' + in_lst[x] + '$, '
+        out_str = out_str + 'and $' + in_lst[len(in_lst)-1] + '$'
     
     return(out_str)
 
