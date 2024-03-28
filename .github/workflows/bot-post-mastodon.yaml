@@ -32,11 +32,13 @@ jobs:
         echo "OUTPUT_ENV_VAR<<EOF" >> $GITHUB_ENV
         echo $OUTPUT >> $GITHUB_ENV
         echo "EOF" >> $GITHUB_ENV
+    - name: Testing multi-line
+      run: |
+        echo ${{ env.OUTPUT_ENV_VAR }}
     - name: Send toot to Mastodon
       id: mastodon
       uses: cbrgm/mastodon-github-action@v2
       with:
           access-token: ${{ secrets.MASTODON_ACCESS_TOKEN }} # access token
           url: ${{ secrets.MASTODON_URL }} # https://example.social
-          message: | 
-            echo ${{ env.OUTPUT_ENV_VAR }}
+          message: ${{ env.OUTPUT_ENV_VAR }}
