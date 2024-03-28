@@ -26,9 +26,11 @@ jobs:
     - name: Run script and save output
       id: script_output
       run: |
-        output=$(python scripts/social-media-bot/bot-content.py) # replace with your script
-        echo "output<<EOF" >> $GITHUB_ENV
-        echo "$output" >> $GITHUB_ENV
+        OUTPUT="this is line one \n
+                this is line two \n
+                this is line three \n"
+        echo "OUTPUT_ENV_VAR<<EOF" >> $GITHUB_ENV
+        echo $OUTPUT >> $GITHUB_ENV
         echo "EOF" >> $GITHUB_ENV
     - name: Send toot to Mastodon
       id: mastodon
@@ -36,4 +38,4 @@ jobs:
       with:
           access-token: ${{ secrets.MASTODON_ACCESS_TOKEN }} # access token
           url: ${{ secrets.MASTODON_URL }} # https://example.social
-          message: ${{ env.output }}
+          message: ${{ env.OUTPUT_ENV_VAR }}
