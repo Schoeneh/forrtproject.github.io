@@ -23,11 +23,11 @@ jobs:
       run: |
         python3 -m pip install --upgrade pip
         pip install pandas
-    - name: Run Python script
-      id: run-script
+    - name: Run script and save output
+      id: script_output
       run: |
-        echo "OUTPUT=$(python3 scripts/social-media-bot/bot-content.py)" >> $GITHUB_ENV
-    - name: Send toot to Mastodon
-      id: mastodon
+        output=$(python scripts/social-media-bot/bot-content.py) # replace with your script
+        echo "::set-output name=output::$output"
+    - name: Use output
       run: |
-          echo ${{ env.OUTPUT }}
+        echo "The output of the script was: ${{ steps.script_output.outputs.output }}"
