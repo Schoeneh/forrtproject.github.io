@@ -24,15 +24,6 @@ jobs:
         python3 -m pip install --upgrade pip
         pip install pandas
         pip install Mastodon.py
-    - name: Run script and save output
+    - name: Run script
       id: script_output
-      run: |
-        output=$(python scripts/social-media-bot/bot-content.py) # replace with your script
-        echo "output=$output" >> $GITHUB_ENV
-    - name: Send toot to Mastodon
-      id: mastodon
-      uses: cbrgm/mastodon-github-action@v2
-      with:
-          access-token: ${{ secrets.MASTODON_ACCESS_TOKEN }} # access token
-          url: ${{ secrets.MASTODON_URL }} # https://example.social
-          message: ${{ env.output }}
+      run: python scripts/social-media-bot/bot-content.py
