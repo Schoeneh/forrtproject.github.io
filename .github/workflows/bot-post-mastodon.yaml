@@ -26,19 +26,13 @@ jobs:
     - name: Run script and save output
       id: script_output
       run: |
-        MULTI_LINES_TEXT="this is line one \n
-                          this is line two \n
-                          this is line three \n"
-        echo "MULTI_LINES_TEXT_ENV_VAR<<EOF" >> $GITHUB_ENV
-        echo $MULTI_LINES_TEXT >> $GITHUB_ENV
-        echo "EOF" >> $GITHUB_ENV
-    - name: Testing multi-line
-      run: |
-        echo ${{ env.MULTI_LINES_TEXT_ENV_VAR }}
+        echo 'OUTPUT<<EOF' >> $GITHUB_ENV
+        $(python scripts/social-media-bot/bot-content.py) >> $GITHUB_ENV
+        echo 'EOF' >> $GITHUB_ENV
     - name: Send toot to Mastodon
       id: mastodon
       uses: cbrgm/mastodon-github-action@v2
       with:
           access-token: ${{ secrets.MASTODON_ACCESS_TOKEN }} # access token
           url: ${{ secrets.MASTODON_URL }} # https://example.social
-          message: ${{ env.MULTI_LINES_TEXT_ENV_VAR }}
+          message: ${{ env.OUTPUT }}
