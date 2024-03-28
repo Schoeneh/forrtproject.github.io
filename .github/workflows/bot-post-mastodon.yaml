@@ -11,7 +11,7 @@ jobs:
   run-python-script:
     runs-on: ubuntu-latest
     env: 
-      TEST: ${{ secrets.TEST }}
+      USER_CRED: ${{ secrets.MASTODONPY_USERCRED }}
       
     steps:
     - name: Checkout repository
