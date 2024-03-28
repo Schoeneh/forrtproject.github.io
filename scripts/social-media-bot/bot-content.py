@@ -1,4 +1,5 @@
 import pandas as pd
+import sys
 
 # Getting the whole database as a DataFrame-object
 data = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRgYcUP3ybhe4x05Xp4-GTf-Cn2snBCW8WOP_N7X-9r80AeCpFAGTfWn6ITtBk-haBkDqXAYXh9a_x4/pub?gid=1924034107&single=true&output=csv"
@@ -142,7 +143,8 @@ for i in range(1):
     ]
 
     post = "\n".join(parts)
-    return(post)
+    #print(post, file=sys.stdout)
+    sys.stdout.write(post)
     #print(sum(char_count.values()))
     #print(char_count)
     #print("---")
