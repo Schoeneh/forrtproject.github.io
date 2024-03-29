@@ -11,7 +11,8 @@ jobs:
   run-python-script:
     runs-on: ubuntu-latest
     env: 
-      USER_CRED: ${{ secrets.MASTODONPY_USERCRED }}
+      TOKEN: ${{ secrets.MASTODON_ACCESS_TOKEN }}
+      URL: ${{ secrets.MASTODON_URL }}
       
     steps:
     - name: Checkout repository
