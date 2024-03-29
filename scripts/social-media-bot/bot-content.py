@@ -152,7 +152,7 @@ parts = [
     pretty_clusters(lst_clusters) + " #OpenScience #OER"
 ]
 
-post = '\n'.join(parts)
+post = '\n\n'.join(parts)
 #print(post)
 mastodon.status_post(post)
 #print(sum(char_count.values()))
