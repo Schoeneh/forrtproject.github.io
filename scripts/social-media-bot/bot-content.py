@@ -156,7 +156,7 @@ for i in range(1):
 
     post = '\n'.join(parts)
     #print(post)
-    mastodon.status_post(post, spoiler_text="Testing, github-action")
+    mastodon.status_post(post)
     #print(post, file=sys.stdout)
     #print(sum(char_count.values()))
     #print(char_count)
