@@ -1,4 +1,5 @@
 import os
+import re
 import random
 import pandas as pd
 from mastodon import Mastodon
@@ -39,6 +40,15 @@ def wrangle_data(df, rand_row):
         'FORRT_clusters': df['FORRT_clusters'][rand_row]
         }
     return data
+
+def gen_link(data, rand_row):
+    filename = re.sub('[\W_]+', '-', data['title'].lower())
+    filename = re.sub('^-', '', filename)
+    filename = re.sub('-$', '', filename[:40])
+
+    link = "https://forrt.org/curated_resources/" + str(rand_row) + "_" + filename
+
+    return(link)
 
 def prettify(data):
     #Removing empty values
@@ -161,10 +171,11 @@ def main():
     FORRT_DF = pd.read_csv(FORRT_DB_URL)
 
     rand_row = random.randint(0, len(FORRT_DF))
-    rand_row = 12 #+2 to get row in table
+    #rand_row = 12 #+2 to get row in table
 
     data = wrangle_data(FORRT_DF, rand_row)
     data = prettify(data)
+
 
     # Generating the post
     data = char_count(data)
@@ -199,17 +210,15 @@ def main():
         line3[0] = "It's aimed at the " + str_educ + " level"
     else:
         line3[0] = "It's aimed at the " + str_educ + " levels"
-
     line3 = "".join(line3)
 
     #line 4 (link)
-    line4 = "You can find it here: " + data["link_to_resource"]
+    line4 = "You can find it here: " + gen_link(data, rand_row)
 
     #line 5 (FORRT clusters as hashtags)
     line5 = str_clus + "#OpenScience #OER"
-    '''
-    pretty_clusters(data["FORRT_clusters"]) + "#OpenScience #OER"
-    '''
+
+    #Joining lines to whole status
     lines = [line1, line2, line3, line4, line5]
     status = '\n\n'.join(lines)
 
