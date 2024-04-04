@@ -225,8 +225,8 @@ def main():
     print("---")
     print(status)
     print(len(status))
-    #mastodon = Mastodon(access_token = os.environ["TOKEN"], api_base_url = os.environ["URL"])
-    #mastodon.status_post(status)
+    mastodon = Mastodon(access_token = os.environ["TOKEN"], api_base_url = os.environ["URL"])
+    mastodon.status_post(status)
 
 if __name__ == "__main__":
     main()
