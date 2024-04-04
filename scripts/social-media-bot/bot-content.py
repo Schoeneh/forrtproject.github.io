@@ -3,34 +3,31 @@ import random
 import pandas as pd
 from mastodon import Mastodon
 
-mastodon = Mastodon(access_token = os.environ["TOKEN"], api_base_url = os.environ["URL"])
+## Function definitions; import_data and wrangle_data reused from content/resources/resource.py
+def import_data(url):
+    return pd.read_csv(url)
 
-# Getting the whole database as a DataFrame-object
-data = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRgYcUP3ybhe4x05Xp4-GTf-Cn2snBCW8WOP_N7X-9r80AeCpFAGTfWn6ITtBk-haBkDqXAYXh9a_x4/pub?gid=1924034107&single=true&output=csv"
-df = pd.read_csv(data)
+def wrangle_data(df):
+    #Standardize column names
+    df.columns = df.columns.str.lower()
+    df.rename(columns = {df.columns[df.columns.str.contains(pat = 'title')][0]: "title",
+                            df.columns[df.columns.str.contains(pat = 'material type')][0]: 'material_type',
+                            df.columns[df.columns.str.contains(pat = 'user tags')][0]: 'tags',
+                            df.columns[df.columns.str.contains(pat = 'lang')][0]: 'language',
+                            df.columns[df.columns.str.contains(pat = 'education level')][0]: 'education_level',
+                            df.columns[df.columns.str.contains(pat = 'subject areas')][0]: 'subject_areas',
+                            df.columns[df.columns.str.contains(pat = 'url')][0]: 'link_to_resource',                           
+                            df.columns[df.columns.str.contains(pat = 'clusters')][0]: 'FORRT_clusters'},
+                inplace = True)
+    df.fillna('', inplace=True)    
 
-
-#Standardize column names; code reused from content/resources/resource.py
-df.columns = df.columns.str.lower()
-df.rename(columns = {df.columns[df.columns.str.contains(pat = 'title')][0]: "title",
-                        df.columns[df.columns.str.contains(pat = 'material type')][0]: 'material_type',
-                        df.columns[df.columns.str.contains(pat = 'user tags')][0]: 'tags',
-                        df.columns[df.columns.str.contains(pat = 'lang')][0]: 'language',
-                        df.columns[df.columns.str.contains(pat = 'education level')][0]: 'education_level',
-                        df.columns[df.columns.str.contains(pat = 'subject areas')][0]: 'subject_areas',
-                        df.columns[df.columns.str.contains(pat = 'url')][0]: 'link_to_resource',                           
-                        df.columns[df.columns.str.contains(pat = 'clusters')][0]: 'FORRT_clusters'},
-            inplace = True)
-df.fillna('', inplace=True)    
-
-#Splitting cells; code reused from content/resources/resource.py
-df['material_type'] = [[y.strip() for y in x.split(',')] for x in df['material_type'].values]
-df['education_level'] = [[y.strip() for y in x.split(',')] for x in df['education_level'].values]
-df['subject_areas'] = [[y.strip() for y in x.split(',')] for x in df['subject_areas'].values]
-df['FORRT_clusters'] = [[y.strip() for y in x.split(',')] for x in df['FORRT_clusters'].values]
-df['tags'] = [[y.strip() for y in x.split(',')] for x in df['tags'].values]
-df['language'] = [[y.strip() for y in x.split(',')] for x in df['language'].values]
-
+    #Splitting cells
+    df['material_type'] = [[y.strip() for y in x.split(',')] for x in df['material_type'].values]
+    df['education_level'] = [[y.strip() for y in x.split(',')] for x in df['education_level'].values]
+    df['subject_areas'] = [[y.strip() for y in x.split(',')] for x in df['subject_areas'].values]
+    df['FORRT_clusters'] = [[y.strip() for y in x.split(',')] for x in df['FORRT_clusters'].values]
+    df['tags'] = [[y.strip() for y in x.split(',')] for x in df['tags'].values]
+    df['language'] = [[y.strip() for y in x.split(',')] for x in df['language'].values]
 
 def pretty_types(in_lst):
     #print(in_lst)
@@ -119,42 +116,51 @@ def pretty_plurals(in_lst):
     out_str = out_str.replace(", and", " and")
     return(out_str)
 
+def main():
 
-# Generating the post
-i = random.randint(0, len(df))
+    FORRT_DB_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRgYcUP3ybhe4x05Xp4-GTf-Cn2snBCW8WOP_N7X-9r80AeCpFAGTfWn6ITtBk-haBkDqXAYXh9a_x4/pub?gid=1924034107&single=true&output=csv"
 
-str_title = df["title"][i]
-lst_type = df["material_type"][i]
-lst_tags = df["tags"][i]
-lst_language = df["language"][i]
-lst_educationLevel = df["education_level"][i]
-lst_subjectAreas = df["subject_areas"][i]
-str_url = df["link_to_resource"][i]
-lst_clusters = df["FORRT_clusters"][i]
+    FORRT_DF = import_data(FORRT_DB_URL)
+
+    wrangle_data(FORRT_DF)
+
+    # Generating the post
+    i = random.randint(0, len(FORRT_DF))
+
+    str_title = FORRT_DF["title"][i]
+    lst_type = FORRT_DF["material_type"][i]
+    lst_tags = FORRT_DF["tags"][i]
+    lst_language = FORRT_DF["language"][i]
+    lst_educationLevel = FORRT_DF["education_level"][i]
+    lst_subjectAreas = FORRT_DF["subject_areas"][i]
+    str_url = FORRT_DF["link_to_resource"][i]
+    lst_clusters = FORRT_DF["FORRT_clusters"][i]
 
 
-char_count = {
-    "static text": 126,
-    "title": len(str_title),
-    "type": len(pretty_types(lst_type)),
-    "user tags": len(pretty_tags(lst_tags)),
-    "language": len(pretty_plurals(lst_language)),
-    "education level": len(pretty_plurals(lst_educationLevel)),
-    "subject areas": len(pretty_plurals(lst_subjectAreas)),
-    "url": 23, #See https://github.com/mastodon/mastodon/pull/4427
-    "clusters": len(pretty_clusters(lst_clusters))}
+    char_count = {
+        "static text": 126,
+        "title": len(str_title),
+        "type": len(pretty_types(lst_type)),
+        "user tags": len(pretty_tags(lst_tags)),
+        "language": len(pretty_plurals(lst_language)),
+        "education level": len(pretty_plurals(lst_educationLevel)),
+        "subject areas": len(pretty_plurals(lst_subjectAreas)),
+        "url": 23, #See https://github.com/mastodon/mastodon/pull/4427
+        "clusters": len(pretty_clusters(lst_clusters))}
 
-parts = [
-    "#FOERRT: " + str_title,
-    "This " + pretty_types(lst_type) + " has been tagged with " + pretty_tags(lst_tags) + " and is available in " + pretty_plurals(lst_language) + ".",
-    "It's aimed at the " + pretty_levels(lst_educationLevel) + " level in " + pretty_plurals(lst_subjectAreas) + ".",
-    "You can find it here: " + str_url,
-    pretty_clusters(lst_clusters) + " #OpenScience #OER"
-]
+    lines = [
+        "#FOERRT: " + str_title,
+        "This " + pretty_types(lst_type) + " has been tagged with " + pretty_tags(lst_tags) + " and is available in " + pretty_plurals(lst_language) + ".",
+        "It's aimed at the " + pretty_levels(lst_educationLevel) + " level in " + pretty_plurals(lst_subjectAreas) + ".",
+        "You can find it here: " + str_url,
+        pretty_clusters(lst_clusters) + " #OpenScience #OER"
+    ]
 
-post = '\n\n'.join(parts)
-#print(post)
-mastodon.status_post(post)
-#print(sum(char_count.values()))
-#print(char_count)
-#print("---")
+    status = '\n\n'.join(lines)
+
+    print(status)
+    #mastodon = Mastodon(access_token = os.environ["TOKEN"], api_base_url = os.environ["URL"])
+    #mastodon.status_post(status)
+
+if __name__ == "__main__":
+    main()
