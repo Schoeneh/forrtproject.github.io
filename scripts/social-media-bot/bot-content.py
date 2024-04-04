@@ -4,10 +4,7 @@ import pandas as pd
 from mastodon import Mastodon
 
 ## Function definitions; wrangle_data reused from content/resources/resource.py
-def wrangle_data(df):
-    rand_row = random.randint(0, len(df))
-    #rand_row = 9 #+2 to get row in table
-
+def wrangle_data(df, rand_row):
     df = df.loc[[rand_row]]
     
     #Standardize column names
@@ -51,7 +48,7 @@ def prettify(data):
                 value.remove('')
 
     #Removing certain material types
-    remove_types = ["Reading", "Primary Source", "R Code"]
+    remove_types = ["Reading", "Primary Source", "R Code", "Interactive"]
     data['material_type'] = [i for i in data['material_type'] if i not in remove_types]
     if len(data['material_type']) == 0:
         data['material_type'].append("Resource")
@@ -85,17 +82,15 @@ def pretty_types(in_lst):
     if len(in_lst) == 1:
         out_str = in_lst[0]
     elif len(in_lst) > 1:
-        out_str = "/".join(in_lst)
+        out_str = " / ".join(in_lst)
     else:
-        out_str = "$NULL"
+        out_str = ""
     
     return(out_str)
 
 def pretty_tags(in_lst):
-    #print(in_lst)
-
     if len(in_lst) == 0:
-        out_str = "$NULL"
+        out_str = ""
     elif len(in_lst) == 1:
         out_str = '\''+in_lst[0]+'\''
     elif len(in_lst) > 1:
@@ -108,7 +103,6 @@ def pretty_tags(in_lst):
     return(out_str)
 
 def pretty_clusters(in_lst):
-
     if len(in_lst) == 0:
         out_str = ""
     else:
@@ -117,20 +111,6 @@ def pretty_clusters(in_lst):
             out_str = out_str + "#" + in_lst[x].replace(" ", "") + " "
         out_str = out_str + "#" + in_lst[len(in_lst)-1].replace(" ", "") + " "
 
-    return(out_str)
-
-def pretty_levels(in_lst):    
-    if len(in_lst) == 1:
-        out_str = in_lst[0]
-    elif len(in_lst) > 1:
-        out_str = ""
-        for x in range(len(in_lst)-1):
-            out_str = out_str + in_lst[x] + ", "
-        out_str = out_str + "and " + in_lst[len(in_lst)-1]
-    else:
-        out_str = "$NULL"
-    
-    out_str = out_str.replace(", and", " and")
     return(out_str)
 
 def pretty_plurals(in_lst):
@@ -143,7 +123,7 @@ def pretty_plurals(in_lst):
             out_str = out_str + in_lst[x] + ", "
         out_str = out_str + "and " + in_lst[len(in_lst)-1]
     else:
-        out_str = "$NULL"
+        out_str = ""
     
     out_str = out_str.replace(", and", " and")
     return(out_str)
@@ -161,35 +141,81 @@ def char_count(data):
         23, #characters in url, see https://github.com/mastodon/mastodon/pull/4427
         len(pretty_clusters(data['FORRT_clusters']))
     ]
-    sum(char_count)
+    if sum(char_count) > 500:
+        if len(data['tags']) > 3: #more than 3 tags
+            data['tags'] = [data['tags'][0], data['tags'][1], data['tags'][2], "..."]
+            char_count[3] = len(pretty_tags(data['tags']))
+    
+    if sum(char_count) > 500:
+        if len(data['title']) > 100: #title with more than 100 characters
+            data['title'] = data['title'][:100] + "[...]"
+            char_count[1] = 100
 
     print(char_count)
     print(sum(char_count))
-    return char_count
+    return data
 
 def main():
 
     FORRT_DB_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRgYcUP3ybhe4x05Xp4-GTf-Cn2snBCW8WOP_N7X-9r80AeCpFAGTfWn6ITtBk-haBkDqXAYXh9a_x4/pub?gid=1924034107&single=true&output=csv"
     FORRT_DF = pd.read_csv(FORRT_DB_URL)
 
-    data = wrangle_data(FORRT_DF)
+    rand_row = random.randint(0, len(FORRT_DF))
+    rand_row = 12 #+2 to get row in table
+
+    data = wrangle_data(FORRT_DF, rand_row)
     data = prettify(data)
 
     # Generating the post
-    char_count(data)
+    data = char_count(data)
 
-    lines = [
-        "#FOERRT: " + data["title"],
-        "This " + pretty_types(data["material_type"]) + " has been tagged with " + pretty_tags(data["tags"]) + " and is available in " + pretty_plurals(data["language"]) + ".",
-        "It's aimed at the " + pretty_levels(data["education_level"]) + " level in " + pretty_plurals(data["subject_areas"]) + ".",
-        "You can find it here: " + data["link_to_resource"],
-        pretty_clusters(data["FORRT_clusters"]) + "#OpenScience #OER"
+    #Dealing with multiple elements in a field
+    str_type = pretty_types(data['material_type'])
+    str_tags = pretty_tags(data['tags'])
+    str_lang = pretty_plurals(data['language'])
+    str_educ = pretty_plurals(data['education_level'])
+    str_subj = pretty_plurals(data['subject_areas'])
+    str_clus = pretty_clusters(data['FORRT_clusters'])
+
+    #line 1 (title)
+    line1 = "#FOERRT: " + data["title"]
+
+    #line 2 (type, tags, language)
+    line2 = [
+        "This " + str_type,
+        "",
+        " is available in " + str_lang + "."
     ]
+    if len(data['tags']) >= 1:
+        line2[1] = " has been tagged with " + str_tags + " and"
+    line2 = "".join(line2)
 
+    #line 3 (education level, subject area)
+    line3 = [
+        "",
+    	" in " + str_subj + "."
+    ]
+    if len(data['education_level']) == 1:
+        line3[0] = "It's aimed at the " + str_educ + " level"
+    else:
+        line3[0] = "It's aimed at the " + str_educ + " levels"
+
+    line3 = "".join(line3)
+
+    #line 4 (link)
+    line4 = "You can find it here: " + data["link_to_resource"]
+
+    #line 5 (FORRT clusters as hashtags)
+    line5 = str_clus + "#OpenScience #OER"
+    '''
+    pretty_clusters(data["FORRT_clusters"]) + "#OpenScience #OER"
+    '''
+    lines = [line1, line2, line3, line4, line5]
     status = '\n\n'.join(lines)
 
     print("---")
     print(status)
+    print(len(status))
     #mastodon = Mastodon(access_token = os.environ["TOKEN"], api_base_url = os.environ["URL"])
     #mastodon.status_post(status)
 
