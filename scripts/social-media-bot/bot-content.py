@@ -6,7 +6,7 @@ from mastodon import Mastodon
 ## Function definitions; wrangle_data reused from content/resources/resource.py
 def wrangle_data(df):
     rand_row = random.randint(0, len(df))
-    #rand_row = 53
+    #rand_row = 9 #+2 to get row in table
 
     df = df.loc[[rand_row]]
     
@@ -44,14 +44,40 @@ def wrangle_data(df):
     return data
 
 def prettify(data):
-    #Changing values to better suit a social media post
+    #Removing empty values
+    for value in data.values():
+        for item in range(len(value)):
+            if value[item] == '':
+                value.remove('')
+
+    #Removing certain material types
     remove_types = ["Reading", "Primary Source", "R Code"]
     data['material_type'] = [i for i in data['material_type'] if i not in remove_types]
     if len(data['material_type']) == 0:
         data['material_type'].append("Resource")
     
-    remove_tags = ["Open Science"]
+    #Removing certain user tags
+    remove_tags = ["Open Science"] #redundant, see static text in main
     data['tags'] = [i for i in data['tags'] if i not in remove_tags]
+
+    #Changing certain FORRT clusters, for better readability
+    for item in range(len(data['FORRT_clusters'])):
+        if data['FORRT_clusters'][item] == "Open Data and Materials":
+            data['FORRT_clusters'][item] = "Open Data"
+        elif data['FORRT_clusters'][item] == "Reproducibility and Replicability Knowledge":
+            data['FORRT_clusters'][item] = "Reproducibility"
+            data['FORRT_clusters'][item].append("Replicability")
+
+    #Changing certain education levels, for better readability
+    for item in range(len(data['education_level'])):
+        if data['education_level'][item].casefold().find("undergrad") != -1:
+            data['education_level'][item] = "Undergraduate"
+        elif data['education_level'][item].casefold().find("professional") != -1:
+            data['education_level'][item] = "Graduate/Professional"
+        elif data['education_level'][item].casefold().find("career") != -1:
+            data['education_level'][item] = "Career/Technical"
+        elif data['education_level'][item].casefold().find("adult") != -1:
+            data['education_level'][item] = "Adult-Education"
     
     return data
 
@@ -82,14 +108,6 @@ def pretty_tags(in_lst):
     return(out_str)
 
 def pretty_clusters(in_lst):
-    for i in range(len(in_lst)):
-        if in_lst[i] == '':
-            in_lst.remove('')
-        elif in_lst[i] == "Open Data and Materials":
-            in_lst[i] = "Open Data"
-        elif in_lst[i] == "Reproducibility and Replicability Knowledge":
-            in_lst[i] = "Reproducibility"
-            in_lst.append("Replicability")
 
     if len(in_lst) == 0:
         out_str = ""
@@ -101,13 +119,7 @@ def pretty_clusters(in_lst):
 
     return(out_str)
 
-def pretty_levels(in_lst):
-    for i in range(len(in_lst)):
-        if in_lst[i].casefold().find("undergrad") != -1:
-            in_lst[i] = "Undergraduate"
-        #if in_lst[i].casefold().find("undergraduates"):
-        #    in_lst[i] = "Undergraduate"
-    
+def pretty_levels(in_lst):    
     if len(in_lst) == 1:
         out_str = in_lst[0]
     elif len(in_lst) > 1:
