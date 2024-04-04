@@ -3,10 +3,7 @@ import random
 import pandas as pd
 from mastodon import Mastodon
 
-## Function definitions; import_data and wrangle_data reused from content/resources/resource.py
-def import_data(url):
-    return pd.read_csv(url)
-
+## Function definitions; wrangle_data reused from content/resources/resource.py
 def wrangle_data(df):
     #Standardize column names
     df.columns = df.columns.str.lower()
@@ -65,20 +62,23 @@ def pretty_tags(in_lst):
 
 def pretty_clusters(in_lst):
     for i in range(len(in_lst)):
-        if in_lst[i] == "Open Data and Materials":
+        if in_lst[i] == '':
+            in_lst.remove('')
+        elif in_lst[i] == "Open Data and Materials":
             in_lst[i] = "Open Data"
         elif in_lst[i] == "Reproducibility and Replicability Knowledge":
             in_lst[i] = "Reproducibility"
             in_lst.append("Replicability")
 
     if len(in_lst) == 0:
-        out_str = "$NULL"
-    else:
         out_str = ""
+    else:
+        out_str = " "
         for x in range(len(in_lst)-1):
             out_str = out_str + "#" + in_lst[x].replace(" ", "") + " "
         out_str = out_str + "#" + in_lst[len(in_lst)-1].replace(" ", "")
 
+    
     return(out_str)
 
 def pretty_levels(in_lst):
@@ -119,41 +119,35 @@ def pretty_plurals(in_lst):
 def main():
 
     FORRT_DB_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRgYcUP3ybhe4x05Xp4-GTf-Cn2snBCW8WOP_N7X-9r80AeCpFAGTfWn6ITtBk-haBkDqXAYXh9a_x4/pub?gid=1924034107&single=true&output=csv"
-
-    FORRT_DF = import_data(FORRT_DB_URL)
+    FORRT_DF = pd.read_csv(FORRT_DB_URL)
 
     wrangle_data(FORRT_DF)
 
     # Generating the post
     i = random.randint(0, len(FORRT_DF))
+    i = 794
+    print(i)
 
-    str_title = FORRT_DF["title"][i]
-    lst_type = FORRT_DF["material_type"][i]
-    lst_tags = FORRT_DF["tags"][i]
-    lst_language = FORRT_DF["language"][i]
-    lst_educationLevel = FORRT_DF["education_level"][i]
-    lst_subjectAreas = FORRT_DF["subject_areas"][i]
-    str_url = FORRT_DF["link_to_resource"][i]
-    lst_clusters = FORRT_DF["FORRT_clusters"][i]
+    fields = [
+        FORRT_DF["title"][i],
+        FORRT_DF["material_type"][i],
+        FORRT_DF["tags"][i],
+        FORRT_DF["language"][i],
+        FORRT_DF["education_level"][i],
+        FORRT_DF["subject_areas"][i],
+        FORRT_DF["link_to_resource"][i],
+        FORRT_DF["FORRT_clusters"][i]
+        ]
 
+    #char_count(fields)
 
-    char_count = {
-        "static text": 126,
-        "title": len(str_title),
-        "type": len(pretty_types(lst_type)),
-        "user tags": len(pretty_tags(lst_tags)),
-        "language": len(pretty_plurals(lst_language)),
-        "education level": len(pretty_plurals(lst_educationLevel)),
-        "subject areas": len(pretty_plurals(lst_subjectAreas)),
-        "url": 23, #See https://github.com/mastodon/mastodon/pull/4427
-        "clusters": len(pretty_clusters(lst_clusters))}
 
     lines = [
-        "#FOERRT: " + str_title,
-        "This " + pretty_types(lst_type) + " has been tagged with " + pretty_tags(lst_tags) + " and is available in " + pretty_plurals(lst_language) + ".",
-        "It's aimed at the " + pretty_levels(lst_educationLevel) + " level in " + pretty_plurals(lst_subjectAreas) + ".",
-        "You can find it here: " + str_url,
-        pretty_clusters(lst_clusters) + " #OpenScience #OER"
+        "#FOERRT: " + fields[0],
+        "This " + pretty_types(fields[1]) + " has been tagged with " + pretty_tags(fields[2]) + " and is available in " + pretty_plurals(fields[3]) + ".",
+        "It's aimed at the " + pretty_levels(fields[4]) + " level in " + pretty_plurals(fields[5]) + ".",
+        "You can find it here: " + fields[6],
+        pretty_clusters(fields[7]) + "#OpenScience #OER"
     ]
 
     status = '\n\n'.join(lines)
